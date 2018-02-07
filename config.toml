@@ -1,0 +1,5 @@
+baseURL = "https://cintia.me/blog/"
+languageCode = "en-us"
+title = "Someone else's computer"
+theme = "minos"
+post = "/:filename/index.html"
