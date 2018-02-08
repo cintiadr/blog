@@ -1,4 +1,4 @@
-baseurl = "https://cintia.me/blog/"
+baseurl = "https://cintia.me/blog"
 languageCode = "en-us"
 title = "Someone else's computer"
 theme = "hugo-type-theme"
@@ -13,7 +13,7 @@ paginate = 10
 
 
 [params]
-	author = "Cintia DR"
+	author = "Cintia"
 	description = "Everything is awesome"
 	# The keywords will be added as a meta tag. Delimit them with a comma.
 	keywords = ""
@@ -21,12 +21,11 @@ paginate = 10
 	# left by adding the filename in below
 	avatar = "img/avatar.png"
 	# or use Gravatar by adding your email address to generate a unique avatar
-	gravatar = "your@email.com"
-
-	headerText = "AWS, DevOps, and other random thoughts"
+	gravatar = "cintiadrio@gmail.com"
+	headerText = "CI/CD, Cloud, AWS, DevOps, and other random thoughts"
 	# To add a header background to the main site, save your image under static/img/.
 	# If now image path is provided, a orange background will be shown instead.
-	headerImage = ""
+	headerImage = "clouds.jpg"
 	copyright = "Released under the MIT license<br>Powered by [Hugo](//gohugo.io/) with the [Type Theme](//github.com/digitalcraftsman/hugo-type-theme)"
 
 
@@ -34,7 +33,7 @@ paginate = 10
 		# Insert your accout name and the icon will be shown in the right menu
 		rss = true
 		homepage = true
-		email = "hello@example.com"
+		email = ""
 		behance = ""
 		bitbucket  =""
 		dribbble = ""
