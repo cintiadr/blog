@@ -1,0 +1,27 @@
+---
+ cache:
+    directories:
+     - ./binaries/
+
+# Clean and don't fail
+install:
+  - rm -rf public || exit 0
+  - wget -O binaries/hugo.tgz https://github.com/gohugoio/hugo/releases/download/v0.36/hugo_0.36_Linux-64bit.tar.gz
+  - tar xzf binaries/hugo_0.36_Linux-64bit.tar.gz -C binaries/
+
+# Build the website
+script:
+  - ./binaries/hugo -v
+
+# deploy to S3
+deploy:
+  provider: s3
+  access_key_id: "YOUR AWS ACCESS KEY"
+  secret_access_key: "YOUR AWS SECRET KEY"
+  bucket: "cintia.me"
+  skip_cleanup: true
+  region: ap-southeast-2
+  local_dir: public
+  upload-dir: blog
+  on:
+    branch: master
