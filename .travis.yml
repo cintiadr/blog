@@ -1,7 +1,9 @@
 ---
- cache:
-    directories:
-     - ./binaries/
+language: go
+
+cache:
+  directories:
+   - ./binaries/
 
 # Clean and don't fail
 install:
