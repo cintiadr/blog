@@ -1,4 +1,4 @@
-baseurl = "https://cintia.me/blog"
+baseurl = "https://cintia.me/blog/"
 languageCode = "en-us"
 title = "Someone else's computer"
 theme = "hugo-type-theme"
