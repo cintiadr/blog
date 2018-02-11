@@ -13,7 +13,6 @@ For the purpose of this blogpost, I'll be focusing on secrets required by _machi
 
 I believe we have pretty decent human-friendly tools for passwords (namely password managers, they could be even combined with MFA, or several of the tools described here can be used by humans), so I will leave that as an exercise to the reader. Human access to machines (SSH and friends) is a more delicate topic, which I want to cover in another post.
 
-
 ## Let's play utopia
 
 ![your secrets are safe with me](http://cdn1.clevver.com/wp-content/uploads/2014/06/pretty-little-liars-alison-your-secrets-safe-with-me.gif)
@@ -23,9 +22,9 @@ When handling secrets, there are some broad features desired for secrets managem
   - Encrypted at rest (\*)
   - Encrypted in transit
   - Change auditing (who changed a secret and why)
-  - Easy to create new secrets (including _developers_ for app secrets\*\*)
+  - Easy to create new secrets (including _developers_ for application secrets\*\*)
   - Auditable and automated secrets deployments
-  - Auditable usage (for each instance using the secret)
+  - Auditable usage (for each usage per secret)
   - Reliable (the secret sauce has to be available for the applications when required)
   - Easy rotation, without causing downtime
   - Limited access and opportunity to decrypt or recover secrets
@@ -39,70 +38,87 @@ When handling secrets, there are some broad features desired for secrets managem
 
 We aim to have the easiest possible way to deploy and rotate secrets, limiting as much as possible when and where the secrets are in clear text. On the other hand, you want auditability on every step of the way.
 
-But this is real life.
-In real life we have to keep the business running, generate profit, have satisfied customers, we have to maintain third party applications.
 
-And maybe the password to JIRA database might not be so risky to the business as passwords to the production databases. We all have our tradeoffs to do, and different parts of your threat model can and should be treated differently.
+## Coming back to earth
 
+But this is real world.
 
-## It's a big world out there
+The utopia gives us the general direction, but implementing all those requirements to every single secret would be extremely expensive. While we all should value security, it would mean nothing if it means causing the business to bankrupt.
+As anyone using the security engineer hat knows, we have to evaluate the assets, risks and the threat model to analyse the trade offs on each individual case. The password to JIRA database doesn't necessarily need to be treated the same as passwords to the PCI-compliant production database.
 
-There are several different tools and strategies to deal with secrets.
+Spoiler alert: you will never reach utopia. No single tool will ever give you everything. Some tools will help with some requirements, some tools will help with other requirements; you'll need to write quite a lot of glue code and, in some cases, you might have to change the applications themselves.
 
-
-
-Daniel Somerfield has done an amazing talk about secrets, and came up with a classification for different _secrets deployment strategies_:
-
-  - *Orchestrator decryption*: The secrets are encrypted in source code, the orchestrator (Puppet, Chef, Ansible - let me stretch that to CI tools) will deploy the secret, in clear text, to the instances running the applications.
-  - *Application decryption*: The secrets are encrypted in source code, the orchestrator will deploy them encrypted. It's the application responsibility to decrypt the secret before using it.
-  - *Operational compartmentalisation*: The secrets lifecycle is completely independent of the the application deployment; it's not deployed together with the application, but by a different team/pipeline, and they are just exposed to the applications.
+That doesn't mean you should give up of security all together because you can't be perfect. Perfect is the enemy of good.
 
 
+## Encryption to the rescue
 
-{{< youtube OUSvv2maMYI >}}
-<blockquote>At some point we need human intervention, but humans are forgetful, unreliable and prone to be run over by buses.</blockquote>
+To help us with secrets, we are going to use encryption a lot.
+Encryption is what allow us to safely store and transit a certain message that can only be read by the recipient. Anything else watching the transmission or seeing the message will not be able to understand the it.
 
+For the purpose of this blogpost, let me give a very oversimplication of encryption algorithms available:
 
-I want to suggest a broader classification, based on how _the secrets are available to the application_. Those would be *pushed secrets* (when the application has secrets available in clear text) and *pulled secrets*, when the application has to action to retrieve the secrets.
+  - Symmetric: the same key is used to encrypt and to decrypt. So you need to share this key beforehand with the message's recipient. You will see sentences like 'shared password', 'shared secret' or 'pre-shared secret'.
+  - Asymmetric: the message is encrypted with the public key; the message can only be decrypted by the private key. Together they are known as the 'key pair'. Examples would be keys generated by GPG, OpenSSL. And before I get any GNU nerd talking about PGP vs GPG, just don't.
+
+<br>
+
+The keys used to encrypt/decrypt data can either be generated on the local filesystem (e.g. when you run gpg/openssl commands locally) or come from a key management system (like AWS KMS or HSM appliances). For the purpose of this blogpost, they will be treated the same, and I won't talk about key rotation.
+
+Can I mention that Base64 is _not_ encryption? Also, friends don't let friends write their own cryptography - let the experts do their thing here. Just use a well tested and established crypto.
+
+If the biggest problem you are facing with secrets right now relates to which encryption algorithm to use and how to best execute key management and rotation, I do assume your secrets management is extremely good already and you don't need this blogpost (or you are just bike shed'ing).
+
+## Bring us the hammers
+
+There are heaps of different tools handling secrets encryption. So, I want to propose to classify them in two types: *pushed secrets* tools (that _push_ clear text secrets to a trusted server or service) and *pulled secrets* tools (applications have to _pull_ secrets from something external).
+
+Another spoiler: you might use multiple tools to achieve the desired result, sometimes even more than one tool of the same type.
+
+<br>
 
 ### Pushed Secrets
 
 ![Push the penguin](https://media1.tenor.com/images/4a1a5e2c2bb61fdaeaf2e0b912fe9fe5/tenor.gif)
 
-The secrets are readily available for the application in clear text when it starts.
-It would typically involve deployments using _orchestrator decryption_ or _operational compartmentalisation_.
+If you are committing secrets in clear text to a git repository or maintaining secrets manually, you start from here.
 
-This is the highest value you can get if you are currently either not handling secrets in an auditable fashion or if you are commiting secrets in clear text in git.
+The tools described here either push the secrets to their end location using the orchestrator (configuration management tool or CI/CD) or push the secrets to one of the _pulled secrets_ services.
 
-While the tools do provide some auditing on modification and they are easy to deploy, you still have secrets decrypted at rest and no usage auditability.
+Even when used without other tools, this class of tools help us achieve a lot of interesting outcomes:
+
+- Encrypted at rest and in transit (partial): the git repos, developers' workstations (for some tools). Only orchestrator and end nodes will have secrets in clear text.
+- Change auditing: via SCM commits
+- Easy to create new secrets: via SCM commits
+- Auditable and automated secrets deployments: via orchestrator
+- Reliable: the secrets are readily available for the application in clear text when it starts.
+- Easy rotation: via SCM commit; but it does require downtime
+- Limited access and opportunity to decrypt or recover secrets: only on the orchestrator or nodes
+- Easy to develop applications consuming those secrets: they are regular files on the filesystem.
+
+On the other hand, secret rotation requires downtime and there's no way to audit usage. The orchestrator and the machines have to be considered 'trusted'.
+
+There are several popular open source tools in this space. Let me give some examples.
+
+#### Configuration Management specific tools
+
+  - [Ansible vault](http://docs.ansible.com/ansible/2.4/vault.html): available for Ansible users. Relies on a symmetric key; the secret is decrypted on the machine running ansible, not on the nodes. Encrypts the whole file, and all files in an ansible run should be encrypted using the same key.
+  - [Chef Data Bags](//docs.chef.io/secrets.html) and [Chef vault](//github.com/chef/chef-vault): available for Chef users. Data Bags uses symmetric keys; the secret is decrypted in the node only, and they should have the shared secret. Chef vault restricts which nodes can decrypt a certain Data Bag. Encrypts the whole file.
+  - [hiera-eyaml](//github.com/voxpupuli/hiera-eyaml): available in puppet or standalone. Uses asymmetric keys (GPG\*\*\* and PKCS7), but gpg-agent [appears supported](//lzone.de/blog/Hiera+EYAML+GPG+Troubleshooting) on standalone only. When used with puppet, the secrets will be decrypted by the puppet server. Only supports yaml files, and encryption is done on specific yaml values (not the whole file). As most of the file is preserved in clear text, it allows huge visibility and editing ability even for those without without access to the private key.
+  - Blackbox for puppet(see below)
 
 #### SCM based tools
 
-There are several popular open source tools in this space. Here a few popular examples:
-
-  - [SOPS](//github.com/mozilla/sops): similarly to hiera-eyaml, only values are encrypted. It works well with GPG\*\*\* and KMS. Supports different file formats. Relies on the fact that the people editing the file always have access to the key, as the file cannot be modified outside sops. Different files can have different keys, and you can have both KMS _and_ GPG on the same file.
-  - [git-crypt](//github.com/AGWA/git-crypt): Transparent support in git; encrypts the whole file. Files are kept in clear text locally for those which have access to the private key. Uses asymmetric keys (GPG\*\*\*). Relies on the user using the right convention to avoid secrets being pushed to git upstream unencrypted.
+  - [git-crypt](//github.com/AGWA/git-crypt):  Uses asymmetric keys (GPG\*\*\*). Encrypts the whole file. Transparent support in git; files are kept in clear text locally for those which have access to the private key, but are pushed encrypted to upstream.Relies on the user using the right convention to avoid secrets being pushed to git upstream unencrypted.
   - [Transcrypt](//github.com/elasticdog/transcrypt): Very similar to git-crypt in behaviour, but uses OpenSSL's symmetric cipher instead of GPG.
-  - [Blackbox](//github.com/StackExchange/blackbox): Encrypts the whole file. All files in the repository are encrypted using the same key. Uses asymmetric keys (GPG\*\*\*). Support to be used from puppet as well, like eyaml. It can be possible to never have clear text secrets locally using this tool.
-  - [git-secret](//github.com/sobolevn/git-secret): Encrypts the whole file. Uses asymmetric keys (GPG\*\*\*). It's not transparent as git-crypt, as the user has to add files individually.
-
-Usually the CI/CD tool has a build to decrypt and deploy secrets.
+  - [git-secret](//github.com/sobolevn/git-secret): Uses asymmetric keys (GPG\*\*\*). Encrypts the whole file.  It's not transparent as git-crypt and transcrypt, as the user has to add files individually via command line.
+  - [Blackbox](//github.com/StackExchange/blackbox): Uses asymmetric keys (GPG\*\*\*). Encrypts the whole file. All files in the repository are encrypted using the same key. Supported in puppet as well. It's be possible to never have clear text secrets locally using this tool.
+  - [SOPS](//github.com/mozilla/sops): It works well with GPG\*\*\* (asymmetric) and AWS KMS (symmetric). Encrypts parts of the file (yaml and json values), like eyaml. Supports json, yaml and binary files. Relies on the fact that the people editing the file always have access to the key, as the file cannot be modified outside sops. Different files can have different keys, and you can have both KMS _and_ GPG on the same file.
 
 We also see quite a few in-house bash/python solutions (using GPG, KMS or any source of keys) or usage of CI environment variables during build time.
 
 
-#### Orchestrator specific tools
-
-  - [Ansible vault](http://docs.ansible.com/ansible/2.4/vault.html): available for Ansible users. Relies on a symmetric key, so only people with access to the key can modify the file. Distributing the key can be a problem. Encrypts the whole file, and all files in an ansible run should be encrypted using the same key. The secret is decrypted on the machine running ansible, not on the hosts.
-  - [Chef Data Bags](//docs.chef.io/secrets.html) and [Chef vault](//github.com/chef/chef-vault): available for Chef users. Uses symmetric key, just like ansible. Encrypts the whole file. The secret is decrypted in the node only, and they should have the shared secret. Chef vault restricts which nodes can decrypt a certain Data Bag, using the Chef client key.
-  - [hiera-eyaml](//github.com/voxpupuli/hiera-eyaml): while tailored for puppet, eyaml (and hiera) can be used independently. Only supports yaml files. Uses asymmetric keys (GPG\*\*\* and PKCS7), gpg-agent [appears supported](//lzone.de/blog/Hiera+EYAML+GPG+Troubleshooting) only when running outside puppet server. When used with puppet, the secrets will be decrypted by the puppet server. Only encrypts values, and allows people without the private key to edit the file (and even add encrypted data). It supports GPG key ring, with multiple private keys allowed to decrypted the secrets.
-  - Blackbox for puppet(see above)
-
-
-Please note that [Docker Secrets](//docs.docker.com/engine/swarm/secrets/) and [Kubernetes Secrets](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/auth/secrets.md) are *not* methods for storing secrets. They only provide a secure way for the _cluster managers_ to share secrets with the containers. They absolutely don't solve the problem of how to get the secrets to the cluster in the first place, and at most they aid _operational compartmentalisation_ deployment for secrets.
-Note that, as of today, there's no control for secret access in docker swarm (a newly created container can be deployed to read _all_ the secrets available on the cluster). Also, there's no versioning concept for secrets yet nor audit logs. I do expect they are working to address that.
-
-\*\*\* _gpg-agent is required to have private keys with passphrase. Because of the way GPG works, it's possible to have multiple private keys allowed to open the same file (as far as they are all included as recipients). All tools mentioned here appear to be taking advantage of that. And before I get any GNU nerd talking about PGP vs GPG, just don't.
+\*\*\* _gpg-agent is required to have private keys with passphrase. Because of the way GPG works, it's possible to have multiple private keys allowed to open the same file (as far as they are all included as recipients). All tools mentioned here appear to be taking advantage of that._
 
 
 #### Bootstrapping
@@ -113,59 +129,84 @@ Because of that, it's common to use at least two of these tools.
 
 There's no easy way of solving this, and usually the solution is either human intervention (e.g. secrets are stored in another secure location and copied manually when the puppet server starts) or some other sort of trusting mechanism (e.g. using IAM roles).
 
-Access Management to secrets is trusted to the orchestrator, which by definition has access to all secrets and deploy them only to registered and checked nodes.
+Access Management to secrets is trusted to the orchestrator, which by definition has access to all secrets and deploy them only to registered and trusted nodes.
 
+
+<br>
 ### Pulled Secrets
 
 ![cats and milk](https://media.giphy.com/media/B6ZOD3aNT3Lxe/giphy.gif)
 
-The secrets are available for the application either encrypted or needs to be retrieved from somewhere external to the machine running it.
-It would typically involve _application decryption_ and _operational compartmentalisation_ deployment strategy, or an external secret management tools.
+The secrets are available for the application either encrypted or needs to be retrieved from somewhere external.
 
-This category have a much higher barrier of entry, as they require all the relevant applications to be changed and be actively responsible for secrets management.
+This class of tools has the power to _help_ you achieve audit for usage, better access control for secrets (granularity per secret), transparent secret rotation (as well as using ephemeral credentials) and, when used with a _pushed secrets_ tool, full encryption at rest. But the tools themselves don't give you anything for free, it will be required to change applications and deployments to achieve that.
 
-But it has very interesting features:
-  - Encryption at rest (no secrets written to the filesystem)
-  - Usage audits
-  - Depending on implementation, ephemeral credentials can be available without restart
+This external service also becomes a big single point of failure for the whole infrastructure.
+This application/appliance needs to be extremely reliable and high available, otherwise your whole production will be all down pretty soon. The ongoing maintenance cost is a lot higher.
 
-Cons:
-  - Operationally expensive to maintain and use secrets
-  - Single point of failure
+Defining secrets in these tools are much more complicated by definition. As they are more complicated, there's a natural tendency to create silos (those who create secrets, those who consume it).
 
-This application/appliance needs to be extremely reliable and high available, otherwise your whole production will be all down. The ongoing maintenance cost is much higher.
-
-The deployments are more complicated by definition. The biggest tendency is to create big silos, those who create credentials and those who consume them (while no tools enforce that, that's the natural tendency for this type of tool due to the higher complexity involved when creating and deploying secrets).
-
-As using these tools requires a lot more effort than the previous class of tools, do not take this decision lightly.
+This last mile requires a lot more effort than the previous class of tools to get any benefit, so do not take this decision lightly.
 
 #### Tools
 
 Some examples:
+
   - [KeyWhiz](//square.github.io/keywhiz/): it's a key management system and secret management system.
   - [Knox](//github.com/pinterest/knox/wiki)
   - [CredStash](https://github.com/fugue/credstash),[Biscuit](https://github.com/dcoker/biscuit), [Sneaker](https://github.com/codahale/sneaker): tools using KMS as the encryption backend.
   - [AWS SSM Parameter store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html): allow AWS EC2 and ECS instances to request specific secrets.
   - [Vault](https://www.vaultproject.io/): it's a key management system, access management system, secret management system, and certificate authority. It would replace AWS IAM/STS, AWS KMS, AWS SSM Parameter Store (AWS Certification Manager can't generate certificates so easily for internal servers yet). HA is officially supported only on consul clusters.
 
-
-The tools in this space have a lot more features, including auditability and node authentication. A good read on them can be done in:
-<https://gist.github.com/maxvt/bb49a6c7243163b8120625fc8ae3f3cd>
+<br>
+The tools in this space have a lot more features, including auditability, interfaces, APIs and node authentication. A good read on them can be done in [this gist](https://gist.github.com/maxvt/bb49a6c7243163b8120625fc8ae3f3cd).
 
 It's common as well to see applications communicating straight to HSM to handle decryption, but the effort and price could be prohibitive. The logs and configuration for HSM tend to not be so readily accessible, and error messages are pretty cryptic.
 
-I've also seen some bad ideas about putting a 'proxy' to inject all credentials needed for the requests. Based on the fact that you'd need to implement the authentication, authorization per service per secret, make sure it's high available and extremely protected, and you still need to provide an automatic way deploy secrets to this server from code, I'd just suggest you don't reinvent the wheel and use use one of the tools that already exist.
+I've also seen some bad ideas about putting a 'proxy' to inject all secrets needed by requests. Based on the fact that you'd need to implement the authentication, authorization per service per secret, make sure it's high available and extremely protected, provide an automatic way deploy secrets to this server from code, I'd just suggest you don't reinvent the wheel and use use one of the tools that already exist.
+
+
+Please note that [Docker Secrets](//docs.docker.com/engine/swarm/secrets/) and [Kubernetes Secrets](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/auth/secrets.md) were *not* considered in this category. They only provide a secure way for the _cluster managers_ to share secrets with the containers. They absolutely don't solve the problem of how to get the secrets to the cluster in the first place nor they offer any auditing.
+Note that, as of today, there's no control for secret access in docker swarm (a newly created container can be deployed to read _all_ the secrets available on the cluster). Also, there's no versioning concept for secrets yet nor audit logs. We have to wait to see on which direction they will go, if any.
 
 #### Lightweight pulled secrets
-Due to the nature of security tools, sometimes teams implement complex tools without a lot of appreciation for the security outcome expected. Some teams implement AWS SSM/HSM/Vault, but the secrets are decrypted during boot time (or docker container initialisation), and write it in plain text to the disk.
+Due to the nature of security tools, sometimes teams implement complex tools without a lot of appreciation for the security outcome expected. Some teams implement AWS SSM/HSM/Vault, but the secrets are decrypted during boot time (or docker container initialisation), and written in plain text to the filesystem.
 
-Effectively, you just lost all the advantages of these tools (auditability on when a secret was needed, ability to rotate keys without downtime, and not write clear text to disk), but you still have to handle the maintenance cost. IMO, this class of tooling should only be used if you decide to go all the way in.
+Effectively, you just lost all the advantages of these tools (auditability on when a secret was needed, ability to rotate keys without downtime, and encryption at rest), but you still have to handle the maintenance cost. IMO, this class of tooling should only be used if you decide to go all the way in.
 
 #### Bootstrapping
 
-Note that none of the tools mentioned here handle how the secrets end up in the external secret management system; usually that tends to be one of the _SCM_ tools described before.
+Note that none of the tools mentioned here handle how the secrets end up in the external secret management system; usually that tends to be one of the _pushed secrets_ tools described before.
 
 Also, the nodes have to authenticate with the secret management system. There are several ways of doing it, via certificate, IAM roles, depending on the tool.
+
+
+<br>
+
+## Deployment Strategies
+
+Regardless of which combination of tools you are using, there are several ways of deploying secrets and pipelines.
+
+
+Daniel Somerfield has done an amazing talk about secrets, and came up with a classification for different _secrets deployment strategies_:
+
+  - *Orchestrator decryption*: The secrets are encrypted in source code, the orchestrator (Puppet, Chef, Ansible - let me stretch that to CI tools) will deploy the secret, in clear text, to the instances running the applications.
+  - *Application decryption*: The secrets are encrypted in source code, the orchestrator will deploy them encrypted. It's the application responsibility to decrypt the secret before using it.
+  - *Operational compartmentalisation*: The secrets lifecycle is completely independent of the the application deployment; it's not deployed together with the application, but by a different team/pipeline, and they are just exposed to the applications.
+
+<br>
+
+{{< youtube OUSvv2maMYI >}}
+<blockquote>At some point we need human intervention, but humans are forgetful, unreliable and prone to be run over by buses.</blockquote>
+
+<br>
+
+
+_Pushed secrets_ tools, when used by themselves, would typically be deployed using _orchestrator decryption_ or _operational compartmentalisation_.
+
+<br>
+_Pulled secrets_ tools would typically be used in _application decryption_ and _operational compartmentalisation_ deployment strategies.
+Docker and Kubernetes secrets could also be used to achieve _operational compartmentalisation_ deployments.
 
 
 ## Credential-less applications
@@ -186,10 +227,10 @@ But there will _always_ be some secrets. I think it would be naive to believe ot
 
 Secrets are bad, but we just have to deal with the fact that they do exist.
 
-There are several tools (open source and proprietary) that can fit some parts of your workflow, but you need to find the right balance for each case. It's fine and expected to use multiple tools at the same time, as far as they complement each other for your use case.
+There are several tools (open source and proprietary) which can fit some parts of your workflow, but you need to find the right balance for each case. It's fine and expected to use multiple tools at the same time, as far as they complement each other for your use case.
 
-Don't commit clear text secrets to repositories. You are a single git clone away of bad things.
+Don't commit clear text secrets to repositories. You are a single git clone away from bad things.
 
-Don't go overboard and install vault + consul cluster + deployment if you don't absolutely need the detailed usa auditing or if you are not willing the change the applications to use it. If you are in AWS, ask yourself what exactly are you getting out of it that is better for the company then AWS IAM/STS + SSM Parameter Store + KMS + Cloudwatch.
+Don't go overboard and install vault + consul cluster + deployment if you don't absolutely need the detailed usage auditing or if you are not willing the change the applications to use it. If you are in AWS, ask yourself what exactly are you getting out of it that is better for the company then AWS IAM/STS + SSM Parameter Store + KMS + Cloudwatch. 
 
-Be just as paranoid as needed.  
+Be just as paranoid as needed. Solve the problems you have, not the problems you want to solve.

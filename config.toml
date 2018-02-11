@@ -26,7 +26,7 @@ paginate = 10
 	# To add a header background to the main site, save your image under static/img/.
 	# If now image path is provided, a orange background will be shown instead.
 	headerImage = "clouds.jpg"
-	copyright = "Powered by [Hugo](//gohugo.io/) with the [Type Theme](//github.com/digitalcraftsman/hugo-type-theme)<br>Comments powered by [staticman](//staticman.net/)"
+	copyright = "All content in this blog is released under the [WTFPL](http://www.wtfpl.net/) licence.<br>Opinions here are obviously my own and not necessarily the views of my employer.<br>Powered by [Hugo](//gohugo.io/) with the [Type Theme](//github.com/digitalcraftsman/hugo-type-theme)<br>Comments powered by [staticman](//staticman.net/)"
 
 
 	[params.social]
