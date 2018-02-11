@@ -1,8 +1,8 @@
 +++
 tags = ['secrets', 'aws']
 title = "Secrets Management: because we all have secrets to keep"
-draft = true
-date = "2018-02-09T20:00:20+02:00"
+draft = false
+date = "2018-02-11T16:00:00+11:00"
 +++
 
 When deploying infrastructure and applications, more frequently than not we have to deal with passwords, API keys, private keys and such. There are several approaches on how to handle them.
@@ -231,6 +231,6 @@ There are several tools (open source and proprietary) which can fit some parts o
 
 Don't commit clear text secrets to repositories. You are a single git clone away from bad things.
 
-Don't go overboard and install vault + consul cluster + deployment if you don't absolutely need the detailed usage auditing or if you are not willing the change the applications to use it. If you are in AWS, ask yourself what exactly are you getting out of it that is better for the company then AWS IAM/STS + SSM Parameter Store + KMS + Cloudwatch. 
+Don't go overboard and install vault + consul cluster + deployment if you don't absolutely need the detailed usage auditing or if you are not willing the change the applications to use it. If you are in AWS, ask yourself what exactly are you getting out of it that is better for the company then AWS IAM/STS + SSM Parameter Store + KMS + Cloudwatch.
 
 Be just as paranoid as needed. Solve the problems you have, not the problems you want to solve.
