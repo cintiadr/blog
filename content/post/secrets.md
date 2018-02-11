@@ -15,7 +15,7 @@ I believe we have pretty decent human-friendly tools for passwords (namely passw
 
 ## Let's play utopia
 
-![your secrets are safe with me](http://cdn1.clevver.com/wp-content/uploads/2014/06/pretty-little-liars-alison-your-secrets-safe-with-me.gif)
+![your secrets are safe with me](/blog/img/secrets/pretty-little-liars-alison-your-secrets-safe-with-me.gif)
 
 When handling secrets, there are some broad features desired for secrets management:
 
@@ -211,7 +211,7 @@ Docker and Kubernetes secrets could also be used to achieve _operational compart
 
 ## Credential-less applications
 
-![Password](http://it-positive.co.uk/wp-content/uploads/2017/03/passwordeasy.jpg)
+![Password](/blog/img/secrets/passwordeasy.jpg)
 
 You are probably now thinking this is just too hard, can you just get rid of secrets altogether?
 Sometimes you can. Sometimes your access management system (e.g. AWS IAM roles, security groups) can be enough for some services. IAM role is extremely powerful as we don't run into bootstrap problems.
@@ -223,7 +223,7 @@ But there will _always_ be some secrets. I think it would be naive to believe ot
 
 ## This is fine
 
-![this is fine dog](https://pbs.twimg.com/media/C3gIjDSWcAAQxoz.jpg)
+![this is fine dog](/blog/img/secrets/fine.jpg)
 
 Secrets are bad, but we just have to deal with the fact that they do exist.
 
