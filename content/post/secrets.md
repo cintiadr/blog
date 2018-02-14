@@ -41,9 +41,9 @@ We aim to have the easiest possible way to deploy and rotate secrets, limiting a
 
 ## Coming back to earth
 
-But this is real world.
+But this is the real world.
 
-The utopia gives us the general direction, but implementing all those requirements to every single secret would be extremely expensive. While we all should value security, it would mean nothing if it means causing the business to bankrupt.
+The utopia gives us the general direction, but implementing all those requirements to every single secret would be extremely expensive. While we all should value security, it would mean nothing if it means causing the business to go bankrupt.
 As anyone using the security engineer hat knows, we have to evaluate the assets, risks and the threat model to analyse the trade offs on each individual case. The password to JIRA database doesn't necessarily need to be treated the same as passwords to the PCI-compliant production database.
 
 Spoiler alert: you will never reach utopia. No single tool will ever give you everything. Some tools will help with some requirements, some tools will help with other requirements; you'll need to write quite a lot of glue code and, in some cases, you might have to change the applications themselves.
@@ -166,7 +166,7 @@ It's common as well to see applications communicating straight to HSM to handle 
 I've also seen some bad ideas about putting a 'proxy' to inject all secrets needed by requests. Based on the fact that you'd need to implement the authentication, authorization per service per secret, make sure it's high available and extremely protected, provide an automatic way deploy secrets to this server from code, I'd just suggest you don't reinvent the wheel and use use one of the tools that already exist.
 
 
-Please note that [Docker Secrets](//docs.docker.com/engine/swarm/secrets/) and [Kubernetes Secrets](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/auth/secrets.md) were *not* considered in this category. They only provide a secure way for the _cluster managers_ to share secrets with the containers. They absolutely don't solve the problem of how to get the secrets to the cluster in the first place nor they offer any auditing.
+Please note that [Docker Secrets](//docs.docker.com/engine/swarm/secrets/) and [Kubernetes Secrets](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/auth/secrets.md) were *not* considered in this category. They only provide a secure way for the _cluster managers_ to share secrets with the containers, using a RAM disk (still clear text on the filesystem). They absolutely don't solve the problem of how to get the secrets to the cluster in the first place nor they offer any auditing.
 Note that, as of today, there's no control for secret access in docker swarm (a newly created container can be deployed to read _all_ the secrets available on the cluster). Also, there's no versioning concept for secrets yet nor audit logs. We have to wait to see on which direction they will go, if any.
 
 #### Lightweight pulled secrets
