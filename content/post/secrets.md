@@ -3,7 +3,7 @@ tags = ['secrets', 'aws']
 title = "Secrets Management: because we all have secrets to keep"
 draft = false
 date = "2018-02-14T20:00:00+11:00"
-featured_image = "blog/img/secrets/pretty-little-liars-alison-your-secrets-safe-with-me.gif"
+featured_image = "img/secrets/pretty-little-liars-alison-your-secrets-safe-with-me.gif"
 +++
 
 When deploying infrastructure and applications, more frequently than not we have to deal with passwords, API keys, private keys and such. There are several approaches on how to handle them.
