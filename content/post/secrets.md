@@ -3,20 +3,19 @@ tags = ['secrets', 'aws']
 title = "Secrets Management: because we all have secrets to keep"
 draft = false
 date = "2018-02-14T20:00:00+11:00"
-featured_image = "/blog/img/secrets/pretty-little-liars-alison-your-secrets-safe-with-me.gif"
 +++
 
 When deploying infrastructure and applications, more frequently than not we have to deal with passwords, API keys, private keys and such. There are several approaches on how to handle them.
 
 <!--more-->
+![your secrets are safe with me](/blog/img/secrets/pretty-little-liars-alison-your-secrets-safe-with-me.gif)
+
 
 For the purpose of this blogpost, I'll be focusing on secrets required by _machines_ - more specifically for automatically provisioned and maintained ones, as one must.
 
 I believe we have pretty decent human-friendly tools for passwords (namely password managers, they could be even combined with MFA, or several of the tools described here can be used by humans), so I will leave that as an exercise to the reader. Human access to machines (SSH and friends) is a more delicate topic, which I want to cover in another post.
 
 ## Let's play utopia
-
-![your secrets are safe with me](/blog/img/secrets/pretty-little-liars-alison-your-secrets-safe-with-me.gif)
 
 When handling secrets, there are some broad features desired for secrets management:
 
