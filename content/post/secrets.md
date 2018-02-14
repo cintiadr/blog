@@ -9,7 +9,7 @@ featured_image = "img/secrets/pretty-little-liars-alison-your-secrets-safe-with-
 When deploying infrastructure and applications, more frequently than not we have to deal with passwords, API keys, private keys and such. There are several approaches on how to handle them.
 
 <!--more-->
-![your secrets are safe with me](/blog/img/secrets/pretty-little-liars-alison-your-secrets-safe-with-me.gif)
+![your secrets are safe with me](https://cintia.me/blog/img/secrets/pretty-little-liars-alison-your-secrets-safe-with-me.gif)
 
 
 For the purpose of this blogpost, I'll be focusing on secrets required by _machines_ - more specifically for automatically provisioned and maintained ones, as one must.
