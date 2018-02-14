@@ -2,7 +2,7 @@
 tags = ['secrets', 'aws']
 title = "Secrets Management: because we all have secrets to keep"
 draft = false
-date = "2018-02-11T16:00:00+11:00"
+date = "2018-02-14T20:00:00+11:00"
 +++
 
 When deploying infrastructure and applications, more frequently than not we have to deal with passwords, API keys, private keys and such. There are several approaches on how to handle them.
@@ -83,7 +83,7 @@ Another spoiler: you might use multiple tools to achieve the desired result, som
 
 If you are committing secrets in clear text to a git repository or maintaining secrets manually, you start from here.
 
-The tools described here either push the secrets to their end location using the orchestrator (configuration management tool or CI/CD) or push the secrets to one of the _pulled secrets_ services.
+The tools described here either push the secrets to their end location using the orchestrator (configuration management tool or CI/CD) or push the secrets to one of the _pulled secrets_ services. They are _offline_ tools, you run them only once during deployment.
 
 Even when used without other tools, this class of tools help us achieve a lot of interesting outcomes:
 
@@ -137,7 +137,7 @@ Access Management to secrets is trusted to the orchestrator, which by definition
 
 ![cats and milk](https://media.giphy.com/media/B6ZOD3aNT3Lxe/giphy.gif)
 
-The secrets are available for the application either encrypted or needs to be retrieved from somewhere external.
+The secrets are available for the application either encrypted or needs to be retrieved from somewhere external. They are _online_ tools, they need to be working while the applications are running or being restarted.
 
 This class of tools has the power to _help_ you achieve audit for usage, better access control for secrets (granularity per secret), transparent secret rotation (as well as using ephemeral credentials) and, when used with a _pushed secrets_ tool, full encryption at rest. But the tools themselves don't give you anything for free, it will be required to change applications and deployments to achieve that.
 
@@ -166,13 +166,13 @@ It's common as well to see applications communicating straight to HSM to handle 
 I've also seen some bad ideas about putting a 'proxy' to inject all secrets needed by requests. Based on the fact that you'd need to implement the authentication, authorization per service per secret, make sure it's high available and extremely protected, provide an automatic way deploy secrets to this server from code, I'd just suggest you don't reinvent the wheel and use use one of the tools that already exist.
 
 
-Please note that [Docker Secrets](//docs.docker.com/engine/swarm/secrets/) and [Kubernetes Secrets](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/auth/secrets.md) were *not* considered in this category. They only provide a secure way for the _cluster managers_ to share secrets with the containers, using a RAM disk (still clear text on the filesystem). They absolutely don't solve the problem of how to get the secrets to the cluster in the first place nor they offer any auditing.
-Note that, as of today, there's no control for secret access in docker swarm (a newly created container can be deployed to read _all_ the secrets available on the cluster). Also, there's no versioning concept for secrets yet nor audit logs. We have to wait to see on which direction they will go, if any.
+Please note that [Docker Secrets](//docs.docker.com/engine/swarm/secrets/) and [Kubernetes Secrets](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/auth/secrets.md) were *not* included. They only provide a secure way for the _cluster managers_ to share secrets with the containers, using a RAM disk (still clear text on the filesystem). They don't offer any auditing or granular access control.
+Also, there's no versioning concept for secrets yet. We have to wait to see on which direction they will go, if any.
 
 #### Lightweight pulled secrets
 Due to the nature of security tools, sometimes teams implement complex tools without a lot of appreciation for the security outcome expected. Some teams implement AWS SSM/HSM/Vault, but the secrets are decrypted during boot time (or docker container initialisation), and written in plain text to the filesystem.
-
-Effectively, you just lost all the advantages of these tools (auditability on when a secret was needed, ability to rotate keys without downtime, and encryption at rest), but you still have to handle the maintenance cost. IMO, this class of tooling should only be used if you decide to go all the way in.
+<br>
+Effectively, you just lost most of the advantages of these tools (auditability on when a secret was needed, ability to rotate keys without downtime, and encryption at rest), but you still have to handle the maintenance cost. IMO, this class of tooling should only be used if you decide to go all the way in.
 
 #### Bootstrapping
 
