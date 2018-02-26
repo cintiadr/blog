@@ -133,7 +133,7 @@ In terraform lingo, _configuration_ would be typically done by its powerful vari
 In Cloudformation, _configuration_ would be parameters (using a tool like  [cfn-sphere](https://github.com/cfn-sphere/cfn-sphere) or [troposphere](https://github.com/cloudtools/troposphere) reading [configuration files](https://github.com/amosshapira/thermal/tree/master/cloudformation)).  
 
 You want the use the same _templates_ across all environments;
-the _configuration_ will allow the little differences between environments
+the _configuration_ will allow the differences between environments
 (different AMIs, bigger VMs, CIDR range, network restrictions, so on).
 
 I've never seen a company where production was identical to the other environments;
@@ -143,19 +143,30 @@ You always want the configuration differences to be as minimal as possible and p
 I've seen people using both monorepos (all stack definitions in the same SCM repository) and even
 one stack definition per repository. I do personally prefer one repository per team maintaining it.
 
-## Deployment
+### Deployment
 
 ![On fire](https://media.giphy.com/media/MdkEfo85Ejcze/giphy.gif)
 
-Deploying infrastructure is not the same as deploying applications. And that's where again the analogy 'something-as-code' fails us miserably again.
+Deploying infrastructure is not the same as deploying applications. And that's where again the analogy 'something-as-code' fails us miserably.
+
+<br/>
+
+Just check the language we use for infrastructure resources and applications:
+
+"The production database is down"
+
+"The poodle application is down in production"
+
+We intuitively know they are not the same.  
+
+<br/>
 
 Let's think about application deployments.
 During the early stages of the deployment pipeline, the application will be packaged _once_.
 This very same package will be copied to _all environments_ during the CD deployment pipeline.   
 
-It's so concrete it's almost touchable. If version 1.0-123 is deployed to development, the very same file with the very same checksum will be deployed to production. If you ssh into the production environment, the build artefact will be there - running. There's a direct correlation between what was generated during build time and what is running in production.
-
-Except for databases schema changes, rolling back an application is a matter of replacing a couple of files and restarting it.
+It's so concrete it's almost touchable. If version 1.0-123 is deployed to development, the very same files with the very same checksum will be deployed to production. If you ssh into the production environment, the build artefacts will be there - hopefully running. There's a direct and concrete correlation
+between what was generated during build time and what is running inside production.
 
 Configuration files for applications very rarely change, and mostly relate to external interfaces (database and cache connections, debug logs, so on).
 
@@ -170,25 +181,39 @@ It's extremely common to have infrastructure changes that should only affect a c
 (e.g. only dev and qa can be accessed from the office), or even common resources have infrastructure
 (e.g. management or CI infrastructure).
 
+<br/>
+
 And that's why I never fully embraced the concept of a single infrastructure pipeline for all environments sharing the same template.
+I do prefer instead to have one pipeline per stack. The early stages of the build will always be triggered
+and will calculate if there are changes to be applied (and notify via comment or notification).
 
-I do prefer instead to have one pipeline per stack. The early stages of the build will calculate if there are changes to be applied (and notify via comment or notification).
+Contrary to what some people believe, just because different stacks share the same template files
+they don't _need_ to be on the same deployment pipeline. It's something you can totally do if you want and you see any advantage, but remember that configuration will cause the stack definition to be different
+for each environment.
 
-Because configuration has such big impacts on the stack definitions, it can be used as a tool for phased
-deployments. 
+I still do prefer the ability to enable each change per environment based on configurations
+instead (sort of feature flags disabling new resources), allowing difference pace for different changes.
 
+As far you control the rollout of the new changes to all relevant environments in some other way
+(let's say, JIRA tickets that are only closed when all those environments are deployed),
+you should be fine.
 
 <br/>
 
-Just check the language we use for infrastructure resources and applications:
-
-" The production database is down"
-
-" The poodle application is down in production"
-
-
-### Development
-
-
-
 ### Testing
+
+A huge advantage of using stack definitions is that now one could easily recreate and modify stacks.
+
+This opens a whole new world for validating (naming conventions, static security checks) and testing
+(create a new stack and check for a health check on a certain URL).
+
+
+
+
+
+### Local development
+
+If it compiles, it will run.
+
+
+## Take aways
