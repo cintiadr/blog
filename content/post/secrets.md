@@ -31,6 +31,7 @@ When handling secrets, there are some broad features desired for secrets managem
   - Limited access and opportunity to decrypt or recover secrets
   - Easy to develop applications consuming those secrets
   - They are not printed on the logs
+  - They are not part of the command line.
 
 \* _Relying on hard disk encryption here is cheating. Ideally we don't want secrets decrypted on the filesystem at all._
 
