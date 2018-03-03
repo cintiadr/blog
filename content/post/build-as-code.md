@@ -1,7 +1,7 @@
 +++
 tags = ['devops', 'ci/cd']
 title = "Build and infrastructure should not be 'code'"
-draft = true
+draft = false
 date = "2018-03-03T20:00:00+11:00"
 +++
 
