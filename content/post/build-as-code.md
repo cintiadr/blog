@@ -5,7 +5,7 @@ draft = true
 date = "2018-02-21T20:00:00+11:00"
 +++
 
-You probably hear the expression 'build as code' and 'infrastructure as code', and I must admit
+You've probably heard the expressions 'build as code' and 'infrastructure as code', and I must admit
 they are my pet peeves.
 
 They are terribly misnamed, and I'm sure I'm not the only one thinking like that.
@@ -24,14 +24,14 @@ entry about infra-as-code, and I suppose it's as mainstream as it can get.
 <blockquote>Infrastructure as code is the approach to defining computing and network infrastructure through source code that can then be treated just like any software system. Such code can be kept in source control to allow auditability and ReproducibleBuilds, subject to testing practices, and the full discipline of ContinuousDelivery. </blockquote>
 
 The idea is great.
-Instead of applying manual changes to create and maintain snowflake infrastructure, you change files under source control, you can run tests, you deploy using a CI/CD tool, you have full auditability and control.
+Instead of applying manual changes to create and maintain snowflake infrastructure, you now change files under source control.
 
-All the advantages that development has had for the last decades, now applied to infrastructure.
+All the advantages that SCM has brought to development, now applied to infrastructure. Run tests, deploy using a CI/CD tool, full auditability and control.
 Nothing short of a miracle, a devops miracle.
 
 There are numerous texts about the advantages of DevOps and infra as code, and I don't need to repeat them here.
 
-Builds-as-code or pipelines-as-code follow same principle. Your CI/CD pipeline should be defined in a file, commited, and not manually modified.
+Builds-as-code or pipelines-as-code follow same principle for CI/CD pipelines.
 
 ## The state of infrastructure
 
@@ -39,8 +39,8 @@ One of my favourites tools in DevOps-land is [terraform](https://www.terraform.i
 It allows us to define and update our
 _whole_ infrastructure using a simple domain specific language (DSL).
 
-You can see in [Github](https://github.com/openmrs/openmrs-contrib-itsm-terraform/blob/master/ako/main.tf),
-I'm using it to define all my networks, my VMs, security groups, DNS names
+You can see this example in [Github](https://github.com/openmrs/openmrs-contrib-itsm-terraform/blob/master/ako/main.tf),
+I'm using terraform to define all networks, VMs, security groups, DNS names
 (that's the infrastructure I maintain for
 [OpenMRS](https://openmrs.org/) Community).
 
@@ -70,7 +70,10 @@ I'm using it to define all my networks, my VMs, security groups, DNS names
   }
 {{< / highlight >}}
 
-Each cloud provider has their own vendor-specific tool to define infrastructure state (e.g. Cloudformation for AWS). Some use YAML/json, some use DSL. You change the files, you run the tool, and voilà, the infrastructure is updated.
+<br/>
+Each cloud provider has their own vendor-specific tool to define infrastructure state (e.g. Cloudformation for AWS). For the purpose of this blogpost, I will call them collectively __infra tools__.
+
+Some of the tools require you to write YAML/json files, some use DSL. You change the files, you run the _infra tool_, and voilà, the infrastructure is updated to match the files.
 
 But look closer.
 Do you see that none of those files are _actually_ code????
@@ -78,16 +81,16 @@ Do you see that none of those files are _actually_ code????
 You are not writing objects, while, for, if, else, exceptions.
 You are not sending messages to queues. You are not programming a framework, connecting to the database, interacting with third party systems.
 
-They are not functional, imperative or object-oriented languages. They are a much simpler language to define state. They are much closer to configuration files than code.
+They are not functional, imperative or object-oriented languages. They are a much simpler language to define state. They look like a lot more like configuration than code.
 
 <br/>
 They are **state** files. **State files**.
 <br/>
 
-You are defining the state that your infrastructure should be. And the tool will calculate the differences, and act on them. Rerunning the tool will have no effect, as there are no deltas to be applied.
+You are defining the state that your infrastructure should be. And the _infra tool_ will calculate the differences, and act on them. Rerunning the tool will have no side effect, as there are no deltas to be applied.
 
 <br/>
-Let's show you a bad example:
+Let's show you a __bad__ example:
 
 {{< highlight bash >}}
 
@@ -99,20 +102,20 @@ aws ec2 run-instances --image-id ami-xxxxxxxx --count 1 \
 
 {{< / highlight >}}
 
-If you rerun this bash script, you end up with... a very confusing infrastructure. And then you have to recreate some sort of poor-man's-terraform in bash to avoid duplicates.
+If you rerun this bash script, you end up with... a very confusing infrastructure. And then you have to recreate some sort of poor-man's-infra-tool in bash to avoid duplicates.
 
 You don't want infrastructure as code.
 
 You want __infrastructure as state__. You want the files committed to git to _actually_ reflect what's in production, as of a [map of the territory](https://wiki.lesswrong.com/wiki/The_map_is_not_the_territory), giving good visibility and predictability of your whole infrastructure.
 
-And you want a tool which can read the state files and act based on them.
+And you want an _infra tool_ which can read the state files and act based on them.
 
 
 ## The map is not the territory
 
 But your infrastructure is _more_ than your state files.
 
-When you think about production infrastructure, you think about a very specific set of resources: a couple of DNS entries, a few databases, a few VMs clusters with certain configuration. While some of this resources have auto-healing, they are still a collection of live resources. While you don't specifically care about their ID, and you can recreate them, they do still exist.
+When you think about production infrastructure, you think about a very specific set of resources: a couple of DNS entries, a few databases, a few VMs clusters with certain configuration. While some of this resources are auto-healing, they are still a collection of live resources. While you don't care about their specifically ID, and you can recreate them, they do exist. Some of these resources have state or data, and some of them will cause downtime if a recreation is needed.
 
 Your staging infrastructure will not have the same resources as the production infrastructure. They can be created using the same state files, but you know that the production database _is not_ the staging database.
 
@@ -192,28 +195,50 @@ they don't _need_ to be on the same deployment pipeline. It's something you can 
 for each environment.
 
 I still do prefer the ability to enable each change per environment based on configurations
-instead (sort of feature flags disabling new resources), allowing difference pace for different changes.
+instead (sort of feature flags disabling new resources), allowing different pace for different changes.
 
 As far you control the rollout of the new changes to all relevant environments in some other way
 (let's say, JIRA tickets that are only closed when all those environments are deployed),
 you should be fine.
 
-<br/>
 
 ### Testing
 
 A huge advantage of using stack definitions is that now one could easily recreate and modify stacks.
 
-This opens a whole new world for validating (naming conventions, static security checks) and testing
+This opens a whole new world for validating (naming conventions, tags conventions, static security checks) and testing
 (create a new stack and check for a health check on a certain URL).
 
+But it's important to note that _you are not here to test the infra tool_. You don't need to test that terraform
+or Cloudformation work as they should on each deploymentt rerraform and Cloudformation _will_ create the resources you asked.
 
+The question for your integration tests is: does that infrastructure _actually_ delivers what you need? Did your change break connectivity to the application you need? Think holistically about your stack and infrastructure when creating your tests.
 
+Leave tool tests for the tools themselves. Terraform is open source, so you can spend your time creating pull requests with tests for them if you really feel like.
 
 
 ### Local development
 
-If it compiles, it will run.
+![coding coding](https://media.giphy.com/media/xT8qB2HYA1vVSxooSY/giphy.gif)
 
+Most infra tools will allow you to do some pre-validation and check differences what would be applied, but do not think for a moment this is enough.
 
-## Take aways
+That would be pretty much equivalent to say that if it compiles, it will run successfully.
+
+Sometimes the stack is isolated enough a person can create a new one to test the new infrastructure changes. Sometimes that's not possible, due to dependencies on other stacks or network complications; for those cases, there's usually a designated environment (e.g. sandbox environment) that is considered to be less risky and can be broken for a couple of minutes if something doesn't go according to plan.
+
+Not having the possibility of deploying the stacks locally (even for a sandbox environment) is a pain; and makes the development much slower (as every change needs to be committed and reviewed before you even had the opportunity to run it).
+
+I never saw a single developer been told to deploy their changes to dev using CI without testing locally. We know that would slow down development a lot, and cause code to be as conservative as possible to work not more efficiently, but on less attempts. Do not cause that to your infrastructure.
+
+## Conclusion
+
+![Going](https://media.giphy.com/media/kZD8cN1MycfKw/giphy.gif)
+
+Infrastructure is not code.
+
+Infrastructure is something that should be modified by an infra tool, using state files.
+
+Stop treating infrastructure changes like application changes. They are not the same, while some principles still apply.
+
+Testing of infrastructure is an amazing possibility, but you want carefully consider what needs to be tested. 
