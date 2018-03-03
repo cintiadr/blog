@@ -2,7 +2,7 @@
 tags = ['devops', 'ci/cd']
 title = "Build and infrastructure should not be 'code'"
 draft = true
-date = "2018-02-21T20:00:00+11:00"
+date = "2018-03-03T20:00:00+11:00"
 +++
 
 You've probably heard the expressions 'build as code' and 'infrastructure as code', and I must admit
@@ -102,11 +102,11 @@ aws ec2 run-instances --image-id ami-xxxxxxxx --count 1 \
 
 {{< / highlight >}}
 
-If you rerun this bash script, you end up with... a very confusing infrastructure. And then you have to recreate some sort of poor-man's-infra-tool in bash to avoid duplicates.
+If you rerun this bash script, you end up with... a very confusing infrastructure. And then you have to recreate some sort of poor-man's-infra-tool to avoid duplicates.
 
 You don't want infrastructure as code.
 
-You want __infrastructure as state__. You want the files committed to git to _actually_ reflect what's in production, as of a [map of the territory](https://wiki.lesswrong.com/wiki/The_map_is_not_the_territory), giving good visibility and predictability of your whole infrastructure.
+You want __infrastructure as state__. You want the files committed to git to _actually_ reflect what's in production, as of a [map of the territory](https://wiki.lesswrong.com/wiki/The_map_is_not_the_territory), giving amazing visibility and predictability of your whole infrastructure.
 
 And you want an _infra tool_ which can read the state files and act based on them.
 
@@ -123,7 +123,7 @@ Let me take this opportunity to explain some concepts as I see them.
 
 ![bye bridge](https://media.giphy.com/media/B6chryYJDMaLC/giphy.gif)
 
-A __stack__ is a collection of live infrastructure sources. You can have, for example, the _production database stack_, a collection of all infrastructure resources related to the database in production.
+A __stack__ is a collection of _live_ infrastructure resources. You can have, for example, the _production database stack_, which will have a database cluster, a few DNS entries, sometimes some bits of networking and security. _Stack_ is a logical group of infrastructure resources currently running.
 This concept correlates closed to terraform _state file_ and Cloudformation stacks.
 
 A _stack_ is maintained by state files, and the collection of state files for a certain stack is called __stack definition__.
@@ -182,13 +182,15 @@ Infrastructure stacks vary a lot more per environment compared to applications, 
 'production-like' environments.
 It's extremely common to have infrastructure changes that should only affect a couple of environments
 (e.g. only dev and qa can be accessed from the office), or even common resources have infrastructure
-(e.g. management or CI infrastructure).
+(e.g. monitoring servers, issue tracker, servers for orchestrators).
 
 <br/>
 
 And that's why I never fully embraced the concept of a single infrastructure pipeline for all environments sharing the same template.
 I do prefer instead to have one pipeline per stack. The early stages of the build will always be triggered
-and will calculate if there are changes to be applied (and notify via comment or notification).
+and will calculate if there are changes to be applied (and notify via comment or notification),
+so we always aware of changes pending to be deployed to a stack.
+A deployment is a deliberate decision, and it's only done after the person analyses the changes and approves them, per stack.
 
 Contrary to what some people believe, just because different stacks share the same template files
 they don't _need_ to be on the same deployment pipeline. It's something you can totally do if you want and you see any advantage, but remember that configuration will cause the stack definition to be different
@@ -196,6 +198,7 @@ for each environment.
 
 I still do prefer the ability to enable each change per environment based on configurations
 instead (sort of feature flags disabling new resources), allowing different pace for different changes.
+
 
 As far you control the rollout of the new changes to all relevant environments in some other way
 (let's say, JIRA tickets that are only closed when all those environments are deployed),
@@ -210,7 +213,7 @@ This opens a whole new world for validating (naming conventions, tags convention
 (create a new stack and check for a health check on a certain URL).
 
 But it's important to note that _you are not here to test the infra tool_. You don't need to test that terraform
-or Cloudformation work as they should on each deploymentt rerraform and Cloudformation _will_ create the resources you asked.
+or Cloudformation work as they should on each deployment terraform and Cloudformation _will_ create the resources you asked.
 
 The question for your integration tests is: does that infrastructure _actually_ delivers what you need? Did your change break connectivity to the application you need? Think holistically about your stack and infrastructure when creating your tests.
 
@@ -229,7 +232,7 @@ Sometimes the stack is isolated enough a person can create a new one to test the
 
 Not having the possibility of deploying the stacks locally (even for a sandbox environment) is a pain; and makes the development much slower (as every change needs to be committed and reviewed before you even had the opportunity to run it).
 
-I never saw a single developer been told to deploy their changes to dev using CI without testing locally. We know that would slow down development a lot, and cause code to be as conservative as possible to work not more efficiently, but on less attempts. Do not cause that to your infrastructure.
+I never saw a single developer been told to deploy their changes to dev without testing locally, without the ability to at least run some integration or manual tests. We know that would slow down development a lot, and cause code to be as conservative as possible to work not more efficiently, but on less attempts. Do not cause that to your infrastructure.
 
 ## Conclusion
 
@@ -241,4 +244,4 @@ Infrastructure is something that should be modified by an infra tool, using stat
 
 Stop treating infrastructure changes like application changes. They are not the same, while some principles still apply.
 
-Testing of infrastructure is an amazing possibility, but you want carefully consider what needs to be tested. 
+Testing of infrastructure is an amazing possibility, but you want carefully consider what needs to be tested.
