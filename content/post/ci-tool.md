@@ -40,7 +40,7 @@ Note that your pipeline should be represented in a CI tool. It doesn't mean that
 Some people like to think about the CI tool as the deployment pipeline orchestrator, the tool which will have the definitions of all pipelines and it will automatically trigger a new pipeline chain (a new release candidate) per commit. It will store information about the each release candidate (based on green/red results) and what has been deployed when and where.
 
 
-While that definition is true, I think it mislead people intro treating it as a magic black box. A sausage factory for production artefacts. In my opinion, that's counterproductive.
+While that definition is true, I think it misleads people into treating it as a magic black box. A sausage factory for production artefacts. In my opinion, that's counterproductive.
 
 
 I like to say that CI tools are __distributed arbitrary remote code executors__.
