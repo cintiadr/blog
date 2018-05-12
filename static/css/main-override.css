@@ -1,0 +1,31 @@
+.expand {
+  font-size: 85%;
+}
+
+.small {
+  font-size: 80%;
+}
+
+.strikethrough {
+  text-decoration: line-through;
+}
+
+ul li {
+  margin-left:15px;
+}
+
+ul ul li {
+  margin-left:30px;
+}
+
+ul ul ul li {
+  margin-left:45px;
+}
+
+ul ul {
+  margin-bottom: 0px;
+}
+
+ul ul ul {
+  margin-bottom: 0px;
+}
