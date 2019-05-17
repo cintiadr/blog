@@ -1,0 +1,83 @@
++++
+tags = ['RDS', 'AWS']
+title = "The magic of the cloud: why your RDS copy is so slow just after being created"
+draft = true
+date = "2019-05-07T20:00:00+11:00"
++++
+
+
+A couple of days ago the created a new RDS. A few minutes later, we attempted to use it. It was slow, terribly slow. Simple unusable, even if we had the exactly same instance type for the RDS. A query that would take 5 seconds in production was taking more than 60 in the copy.
+
+
+A colleague mentioned that it wasn't unheard of. That he always had the feeling that a fresh copy needed to 'warm up' somehow for a few hours before being usable.
+
+
+Certainly the cloud is going to solve all our problems.
+
+https://media.giphy.com/media/B2vBunhgt9Pc4/giphy.gif
+
+
+<!--more-->
+
+
+
+
+
+
+I had no data to back that up, so I just randomly typed some words in Google. I got two good links (one which had supposedly contacted AWS support before) telling me that when creating an RDS from a snapshot (exactly what our RDS copy tool does) all data is loaded lazily  from S3.
+
+
+I searched for AWS docs, and there's nothing specific about RDS. But there's this about EBS volumes created from snapshots:
+
+    New volumes created from existing EBS snapshots load lazily in the background. This means that after a volume is created from a snapshot, there is no need to wait for all of the data to transfer from Amazon S3 to your EBS volume before your attached instance can start accessing the volume and all its data. If your instance accesses data that hasn't yet been loaded, the volume immediately downloads the requested data from Amazon S3, and continues loading the rest of the data in the background.
+
+    ...
+
+    New EBS volumes receive their maximum performance the moment that they are available and do not require initialization (formerly known as pre-warming). However, storage blocks on volumes that were restored from snapshots must be initialized (pulled down from Amazon S3 and written to the volume) before you can access the block. This preliminary action takes time and can cause a significant increase in the latency of an I/O operation the first time each block is accessed. Performance is restored after the data is accessed once.
+
+    For most applications, amortizing the initialization cost over the lifetime of the volume is acceptable. To ensure that your restored volume always functions at peak capacity in production, you can force the immediate initialization of the entire volume using dd or fio. For more information, see Initializing Amazon EBS Volumes.
+
+
+Firstly, wait what? It sounds equally awesome and scary. So you told me my data was on the disk when it wasn't? Ok, then.
+
+
+
+
+
+While we can safely assume that RDS are backed using EBS (and an RDS snapshot is probably an special EBS snapshot), I just couldn't believe they wouldn't apply the workaround to RDS as well.
+
+So I asked support.
+
+
+Guess their answer.
+
+https://media.giphy.com/media/xm27OEVjSxGh2/giphy.gif
+
+
+    You correctly mentioned, new volumes created from existing EBS snapshots load lazily in the background.
+
+    This means that after a volume is created from a snapshot, there is no need to wait for all the data to transfer from Amazon S3 to your EBS volume before your attached instance can start accessing the volume and all its data.
+
+    Suggestions for your issue:
+
+        1. You can manually trigger a vacuum analyze, this will do a full table scan of each table within scope to update the planner with fresh statistics.
+
+        2. If number of tables are less, you can run "select * from table-name" for all the tables. This will bring the data into EBS volume from S3.
+
+       3. If you want to bring whole data in one go, then you can use pg_dump of PostgreSQL.
+
+
+    (...) when new volumes are created from existing EBS snapshots then data is loaded from S3 to the new EBS volume which is lazy loading so it takes time. It is slow for the first time only, once the data is loaded, you will not face slowness. So, it would be better if you trigger vacuum analyze or run select command on tables as that would bring all the tables into new EBS volume.
+
+
+I confirmed with support that it affects point-in-time, so it affects our disaster recovery plans too.
+
+Changing instance size or storage type doesn't suffer from the same problem.
+
+
+So, maybe running a vacuum analyze really indirectly makes our brand-new RDS faster??? Crazy stuff.
+
+
+https://media.giphy.com/media/ys2SDO6BgXjvG/giphy.gif
+
+
