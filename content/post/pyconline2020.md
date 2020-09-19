@@ -118,7 +118,7 @@ In a very 2020 fashion, this is how we closed it. Yeet it now.
 ![Curlyboi](/blog/img/pycon2020/curlyboi.png)
 <br/>
 
-The conference was far from over. Clearly we were way way to excited to let it go.
+The conference was far from over. Clearly we were way way too excited to let it go.
 Sunday Funday it is!
 
 As always, one of the highlights of weirdness were our lightning talks. We had our Lightning talks Czar, [@chrisjrn](https://twitter.com/chrisjrn), organising them yet again - this time [online](https://www.youtube.com/watch?v=1FJ467Tsf34&
