@@ -26,7 +26,7 @@ an _extremely online_ conference. Yes, in case you are missing safety airline vi
 
 <br/>
 The event was hosted in [Venueless](https://venueless.org/), and the team was exceptionally responsive. So many deployments and new features during the conference.
-And of course, AV was taken care by amazing [NextdayVideo](https://nextdayvideo.com/), and they were as impressive as always. True to their name, the very next day we had all talks available in youtube.
+And of course, AV was taken care by amazing [Next Day Video](https://nextdayvideo.com/), and they were as impressive as always. True to their name, the very next day we had all talks available in [youtube](https://www.youtube.com/user/pyconau).
 
 
 Let me explain to you how an _extremely online_ event works.
@@ -157,7 +157,7 @@ Spoiler: I won as the most object oriented hello world! Check the beauty I creat
 
 {{<tweet 1302557738275188737>}}
 
-And it was the end. You all dorks next year! Hopefully in Adelaide.
+And it was the end. See you all dorks next year! Hopefully in Adelaide to have that Pub Parmie (apparently that's the Adelaide name) we already scheduled. 
 
 <br/>
 
