@@ -3,7 +3,7 @@ tags = ['python', 'pyconau']
 title = "Pycon AU 2020, as amazing as always"
 draft = false
 date = "2020-09-18T19:00:00+11:00"
-featured_image = "http://localhost:1313/blog/img/pycon2020/curlyboi.png"
+featured_image = "/blog/img/pycon2020/curlyboi.png"
 +++
 
 If you don't know a conference named [PyconAU](https://2020.pycon.org.au/), you have no idea what you are missing. And I now finally had the energy to gather my thoughts about it.
@@ -16,18 +16,13 @@ but Python has _hands down_ the best community of all. There's no other communit
 
 Be warned we are a _tad_ unusual, but we are proud of it. Grassroots conferences are the best.
 
-![Curlyboi](http://localhost:1313/blog/img/pycon2020/curlyboi.png)
+![Curlyboi](/blog/img/pycon2020/curlyboi.png)
 ^^^^ _Paranoid curlyboi!!!!!111!!!! Yes, that's a tinfoil hat_^^^^
 
 <br/>
 
 Pycon AU was scheduled to happen in Adelaide this year (it's on the same city for two years, before moving to a new city). But 2020 had different ideas, and so we ended up with
-an _extremely online_ conference.
-
-
-
-_Yes, in case you are missing safety airline videos, pyconlineau covers your needs._
-{{< youtube AQ9Dm0ewwZA >}}
+an _extremely online_ conference. Yes, in case you are missing safety airline videos, pyconlineau [covers your needs](https://www.youtube.com/watch?v=AQ9Dm0ewwZA).
 
 <br/>
 The event was hosted in [Venueless](https://venueless.org/), and the team was exceptionally responsive. So many deployments and new features during the conference.
@@ -35,9 +30,7 @@ And of course, AV was taken care by amazing [NextdayVideo](https://nextdayvideo.
 
 
 Let me explain to you how an _extremely online_ event works.
-You type a lot. You join a lot of video hallways to talk about artificial blood, or where to dye your hair like curlyboi. You complain about the lack of snacks and post pictures of your cats. Conference rooms are named like 'Curlyboi Theater' and 'Python 2 Memorial Concert Hall'. <small> [favourite name?](https://twitter.com/CgCnu/status/1302076669306392576?s=20)</small>
-
-You use a lot of 'heart' emojis.  
+You type a lot. You join a lot of video hallways to talk about artificial blood, or where to dye your hair like curlyboi. You complain about the lack of snacks and post pictures of your cats. Conference rooms are named like 'Curlyboi Theater' and 'Python 2 Memorial Concert Hall'. <small> [favourite name?](https://twitter.com/CgCnu/status/1302076669306392576?s=20)</small>. You use a lot of 'heart' emojis.  
 
 
 Note that conference time was originally in ACST time, but we quickly agreed that it did not mean _Australian Central Standard Time_, but rather _Australian Curlyboi Standard Time_, which will change every 2 years. Note that this is still one of the saner timezones. <small>_[... Time talk? We had one](https://2020.pycon.org.au/program/ddcvam/)_</small>
@@ -49,13 +42,12 @@ Note that conference time was originally in ACST time, but we quickly agreed tha
 
 
 <br/>
-![Curlyboi](http://localhost:1313/blog/img/pycon2020/curlyboi.png)
+![Curlyboi](/blog/img/pycon2020/curlyboi.png)
 <br/>
 
-On Friday, we had the miniconfs (as the name say, mini conferences!). Really good talks, but I have to give the trophy to the Security&Privacy miniconf, which managed to registered what's one of the best domains known to humankind.
+On Friday, we had the miniconfs. Really good talks, but I have to give the trophy to the Security&Privacy miniconf, which managed to register what's one of the best domains known to industry.
 <https://snakeoil.academy/>
 
-Yes, miniconf featured some tinfoil hats, just like Curlyboi.
 Some talks I'd say everyone should watch.
 
 <br/>
@@ -78,8 +70,9 @@ The (lack-of) science on biometrics, and how are we've been abusing them.
 Shadow IT, and what we can learn from the Prohibition Era.
 {{< youtube R0-VDnbst0M>}}
 <br/>
-![Curlyboi](http://localhost:1313/blog/img/pycon2020/curlyboi.png)
+![Curlyboi](/blog/img/pycon2020/curlyboi.png)
 <br/>
+
 The main conference started on Saturday, and oh boy, the organisers did an amazing job.
 
 <br/>
@@ -104,7 +97,7 @@ If you haven't yet seen this talk, it's just an amazing gem.
 {{<youtube Yv4tI6939q0>}}
 
 <br/>
-![Curlyboi](http://localhost:1313/blog/img/pycon2020/curlyboi.png)
+![Curlyboi](/blog/img/pycon2020/curlyboi.png)
 <br/>
 
 Main conference closing was very on-brand. As AV was acting up a little bit, clearly we all decided the best way to get it to work was to throw _ridiculous_ amounts of hearts until it worked.
@@ -117,12 +110,12 @@ Everyone knows that adding more load to the servers is exactly what's needed.
 
 In a very 2020 fashion, this is how we closed it. Yeet it now.
 
-![Screaming](http://localhost:1313/blog/img/pycon2020/closing.png)
+![Screaming](/blog/img/pycon2020/closing.png)
 
 {{<tweet 1302513607263961088>}}
 
 <br/>
-![Curlyboi](http://localhost:1313/blog/img/pycon2020/curlyboi.png)
+![Curlyboi](/blog/img/pycon2020/curlyboi.png)
 <br/>
 
 The conference was far from over. Clearly we were way way to excited to let it go.
@@ -133,14 +126,11 @@ As always, one of the highlights of weirdness were our lightning talks. We had o
 
 {{<tweet 1302467210388987904>}}
 
-There was Mario Kart tounaments, Lightning talks in Animal Crossing, Curlybois, video calls.
-
-
-
+There was Mario Kart tournaments, Lightning talks in Animal Crossing, Curlybois, video calls.
 
 
 <br/>
-![Curlyboi](http://localhost:1313/blog/img/pycon2020/curlyboi.png)
+![Curlyboi](/blog/img/pycon2020/curlyboi.png)
 <br/>
 
 Have you ever asked yourself 'what's the most complicated Hello World I could come up with?'. Ask no more. [Rube Codeberg competition](https://2020.pycon.org.au/program/sun/) is exactly what I needed.
@@ -161,7 +151,7 @@ Spoiler: I won as the most object oriented hello world! Check the beauty I creat
 
 
 <br/>
-![Curlyboi](http://localhost:1313/blog/img/pycon2020/curlyboi.png)
+![Curlyboi](/blog/img/pycon2020/curlyboi.png)
 <br/>
 
 
@@ -171,4 +161,4 @@ And it was the end. You all dorks next year! Hopefully in Adelaide.
 
 <br/>
 
-![Ending](http://localhost:1313/blog/img/pycon2020/ending.jpg)
+![Ending](/blog/img/pycon2020/ending.jpg)
